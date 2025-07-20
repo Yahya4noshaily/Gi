@@ -2,101 +2,138 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>📡 توصيات EUR/USD</title>
+  <title>لوحة التوصيات - eo broker smart</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
-      margin: 0;
-      padding: 20px;
-      background-color: #111;
+      background: #111;
       color: #eee;
       font-family: 'Segoe UI', sans-serif;
+      padding: 20px;
       direction: rtl;
     }
-    .container {
-      max-width: 500px;
-      margin: auto;
-      background-color: #222;
-      padding: 20px;
-      border-radius: 10px;
-    }
     h1 {
-      text-align: center;
       color: #0f0;
+      text-align: center;
+      margin-bottom: 20px;
     }
-    .label {
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+      border-bottom: 1px solid #333;
+    }
+    th {
+      background-color: #222;
+      color: #0ff;
+    }
+    tr.buy { background-color: rgba(0,255,0,0.1); }
+    tr.sell { background-color: rgba(255,0,0,0.1); }
+    .timestamp {
+      font-size: 0.85em;
       color: #aaa;
-      font-weight: bold;
-    }
-    .value {
-      font-size: 1.2em;
-      margin-bottom: 10px;
     }
     button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 15px;
-      background-color: #0f0;
-      border: none;
+      padding: 10px 20px;
+      background-color: #0ff;
       color: #000;
-      font-weight: bold;
-      border-radius: 6px;
+      border: none;
+      border-radius: 5px;
       cursor: pointer;
-    }
-    .updated {
-      text-align: center;
-      margin-top: 15px;
-      color: #999;
-      font-size: 14px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>📡 توصيات EUR/USD</h1>
+  <h1>📡 توصيات مباشر - EUR/USD</h1>
+  <table id="signalTable">
+    <thead>
+      <tr>
+        <th>🕒 الوقت</th>
+        <th>📈 التوصية</th>
+        <th>💲 السعر</th>
+        <th>🎯 TP</th>
+        <th>🛑 SL</th>
+        <th>⏱️ المدة</th>
+        <th>📊 الثقة</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
 
-    <p class="label">📉 التوصية:</p>
-    <p class="value" id="signal">--</p>
-
-    <p class="label">💱 السعر:</p>
-    <p class="value" id="price">--</p>
-
-    <p class="label">🎯 الهدف:</p>
-    <p class="value" id="tp">--</p>
-
-    <p class="label">🛑 وقف الخسارة:</p>
-    <p class="value" id="sl">--</p>
-
-    <p class="label">📊 نسبة الثقة:</p>
-    <p class="value" id="confidence">--</p>
-
-    <p class="label">⏱️ مدة الصفقة:</p>
-    <p class="value" id="duration">--</p>
-
-    <button onclick="fetchSignal()">🔄 تحديث يدوي</button>
-    <p class="updated" id="updatedTime">آخر تحديث: --</p>
+  <div style="text-align:center;">
+    <button onclick="downloadCSV()">📥 تحميل CSV</button>
   </div>
 
   <script>
+    let historyData = [];
+
     async function fetchSignal() {
       try {
-        const res = await fetch("/latest_signal.json");
-        const data = await res.json();
+        const res = await fetch('https://gi-jade.vercel.app/latest_signal.json'); // تأكد من صحة الرابط
+        const signal = await res.json();
 
-        document.getElementById("signal").textContent = data.signal || "--";
-        document.getElementById("price").textContent = data.price || "--";
-        document.getElementById("tp").textContent = data.tp || "--";
-        document.getElementById("sl").textContent = data.sl || "--";
-        document.getElementById("confidence").textContent = (data.confidence || "--") + "%";
-        document.getElementById("duration").textContent = (data.duration || "--") + " ثانية";
-        document.getElementById("updatedTime").textContent = "آخر تحديث: " + new Date().toLocaleTimeString();
-      } catch (e) {
-        alert("❌ فشل تحميل التوصية");
+        const time = new Date().toLocaleTimeString('ar-EG');
+        const row = {
+          time,
+          signal: signal.signal || "--",
+          price: signal.price || "--",
+          tp: signal.tp || "--",
+          sl: signal.sl || "--",
+          duration: signal.duration + " ثانية" || "--",
+          confidence: signal.confidence + "%" || "--"
+        };
+
+        historyData.unshift(row);
+        if (historyData.length > 10) historyData.pop();
+        renderTable();
+
+      } catch (err) {
+        console.error("فشل في تحميل البيانات:", err);
       }
     }
 
-    // تحميل تلقائي عند الفتح
+    function renderTable() {
+      const tbody = document.getElementById("tableBody");
+      tbody.innerHTML = "";
+
+      historyData.forEach(row => {
+        const tr = document.createElement("tr");
+        tr.className = row.signal.includes("شراء") ? "buy" : row.signal.includes("بيع") ? "sell" : "";
+
+        tr.innerHTML = `
+          <td>${row.time}</td>
+          <td>${row.signal}</td>
+          <td>${row.price}</td>
+          <td>${row.tp}</td>
+          <td>${row.sl}</td>
+          <td>${row.duration}</td>
+          <td>${row.confidence}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function downloadCSV() {
+      let csv = "الوقت,التوصية,السعر,TP,SL,المدة,الثقة\n";
+      historyData.forEach(r => {
+        csv += `${r.time},${r.signal},${r.price},${r.tp},${r.sl},${r.duration},${r.confidence}\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", "signal_log.csv");
+      link.click();
+    }
+
+    // تحديث كل دقيقة
     fetchSignal();
+    setInterval(fetchSignal, 60000);
   </script>
 </body>
 </html>
