@@ -1,27 +1,39 @@
-<script>
-async function fetchRealSignal() {
-  try {
-    const res = await fetch("latest_signal.json"); // ملف JSON المُرسل من MT5
-    const signal = await res.json();
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title>توصيات MT5 لايف</title>
+</head>
+<body>
+  <h1>🚀 توصية مباشرة</h1>
+  <p>📈 الاتجاه: <span id="recommendation">--</span></p>
+  <p>💵 السعر: <span id="price">--</span></p>
+  <p>🎯 الهدف: <span id="tp">--</span></p>
+  <p>🛑 الوقف: <span id="sl">--</span></p>
+  <p>⏱ المدة: <span id="duration">--</span></p>
+  <p>📊 الثقة: <span id="confidence">--</span></p>
 
-    document.getElementById("recommendation").textContent = signal.signal || "--";
-    document.getElementById("price").textContent = signal.price || "--";
-    document.getElementById("tp").textContent = signal.tp || "--";
-    document.getElementById("sl").textContent = signal.sl || "--";
-    document.getElementById("duration").textContent = signal.duration + " ثانية" || "--";
-    document.getElementById("confidence").textContent = signal.confidence + "%" || "--";
+  <ul id="historyList"></ul>
 
-    const log = `${signal.signal} @ ${signal.price} 🎯 ${signal.tp} / 🛑 ${signal.sl} / ⏱ ${signal.duration} / 📊 ${signal.confidence}%`;
-    const li = document.createElement("li");
-    li.textContent = log;
-    document.getElementById("historyList").prepend(li);
+  <script>
+    async function fetchRealSignal() {
+      const res = await fetch("/latest_signal.json");
+      const signal = await res.json();
+      document.getElementById("recommendation").textContent = signal.signal || "--";
+      document.getElementById("price").textContent = signal.price || "--";
+      document.getElementById("tp").textContent = signal.tp || "--";
+      document.getElementById("sl").textContent = signal.sl || "--";
+      document.getElementById("duration").textContent = signal.duration || "--";
+      document.getElementById("confidence").textContent = signal.confidence || "--";
 
-  } catch (e) {
-    console.error("فشل تحميل الإشارة الحية:", e);
-  }
-}
+      const log = `${signal.signal} @ ${signal.price} 🎯 ${signal.tp} / 🛑 ${signal.sl} / ⏱ ${signal.duration} / 📊 ${signal.confidence}`;
+      const li = document.createElement("li");
+      li.textContent = log;
+      document.getElementById("historyList").prepend(li);
+    }
 
-// تحديث كل 5 ثوانٍ
-setInterval(fetchRealSignal, 5000);
-fetchRealSignal();
-</script>
+    setInterval(fetchRealSignal, 5000);
+    fetchRealSignal();
+  </script>
+</body>
+</html>
