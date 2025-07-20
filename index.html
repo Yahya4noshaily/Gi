@@ -1,58 +1,27 @@
 <script>
-// بيانات سعر وهمي تحاكي الاتجاهات
-const priceSeries = [1.0895, 1.0898, 1.0902, 1.0907, 1.0911, 1.0914, 1.0912, 1.0915];
-const resistance = 1.0918;
-const support = 1.0892;
+async function fetchRealSignal() {
+  try {
+    const res = await fetch("latest_signal.json"); // ملف JSON المُرسل من MT5
+    const signal = await res.json();
 
-function calculateRSI() {
-  const changes = priceSeries.slice(1).map((v, i) => v - priceSeries[i]);
-  const gains = changes.filter(x => x > 0).reduce((a, b) => a + b, 0);
-  const losses = Math.abs(changes.filter(x => x < 0).reduce((a, b) => a + b, 0));
-  const rs = gains / (losses || 1);
-  return 100 - (100 / (1 + rs));
-}
+    document.getElementById("recommendation").textContent = signal.signal || "--";
+    document.getElementById("price").textContent = signal.price || "--";
+    document.getElementById("tp").textContent = signal.tp || "--";
+    document.getElementById("sl").textContent = signal.sl || "--";
+    document.getElementById("duration").textContent = signal.duration + " ثانية" || "--";
+    document.getElementById("confidence").textContent = signal.confidence + "%" || "--";
 
-function determineSignal() {
-  const lastPrice = priceSeries[priceSeries.length - 1];
-  const rsi = calculateRSI();
-  let direction, tp, sl;
+    const log = `${signal.signal} @ ${signal.price} 🎯 ${signal.tp} / 🛑 ${signal.sl} / ⏱ ${signal.duration} / 📊 ${signal.confidence}%`;
+    const li = document.createElement("li");
+    li.textContent = log;
+    document.getElementById("historyList").prepend(li);
 
-  if (rsi > 70 || lastPrice >= resistance) {
-    direction = "بيع";
-    tp = (lastPrice - 0.0004).toFixed(5);
-    sl = (lastPrice + 0.0002).toFixed(5);
-  } else if (rsi < 30 || lastPrice <= support) {
-    direction = "شراء";
-    tp = (lastPrice + 0.0004).toFixed(5);
-    sl = (lastPrice - 0.0002).toFixed(5);
-  } else {
-    direction = "انتظار 📉";
-    tp = "-";
-    sl = "-";
+  } catch (e) {
+    console.error("فشل تحميل الإشارة الحية:", e);
   }
-
-  return {
-    direction,
-    price: lastPrice.toFixed(5),
-    tp,
-    sl,
-    duration: "30 ثانية",
-    confidence: (rsi > 70 || rsi < 30) ? "90%" : "65%"
-  };
 }
 
-function generateSignal() {
-  const signal = determineSignal();
-  document.getElementById("recommendation").textContent = signal.direction;
-  document.getElementById("price").textContent = signal.price;
-  document.getElementById("tp").textContent = signal.tp;
-  document.getElementById("sl").textContent = signal.sl;
-  document.getElementById("duration").textContent = signal.duration;
-  document.getElementById("confidence").textContent = signal.confidence;
-
-  const log = `${signal.direction} @ ${signal.price} 🎯 ${signal.tp} / 🛑 ${signal.sl} / ⏱ ${signal.duration} / 📊 ${signal.confidence}`;
-  const li = document.createElement("li");
-  li.textContent = log;
-  document.getElementById("historyList").prepend(li);
-}
+// تحديث كل 5 ثوانٍ
+setInterval(fetchRealSignal, 5000);
+fetchRealSignal();
 </script>
