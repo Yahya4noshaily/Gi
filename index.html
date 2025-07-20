@@ -1,45 +1,102 @@
-import Head from 'next/head';
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📡 توصيات EUR/USD</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background-color: #111;
+      color: #eee;
+      font-family: 'Segoe UI', sans-serif;
+      direction: rtl;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background-color: #222;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    h1 {
+      text-align: center;
+      color: #0f0;
+    }
+    .label {
+      color: #aaa;
+      font-weight: bold;
+    }
+    .value {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 15px;
+      background-color: #0f0;
+      border: none;
+      color: #000;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .updated {
+      text-align: center;
+      margin-top: 15px;
+      color: #999;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📡 توصيات EUR/USD</h1>
 
-export default function Home() {
-  return (
-    <div dir="rtl" style={{ background: '#111', color: '#eee', padding: '20px', fontFamily: 'Segoe UI, sans-serif' }}>
-      <Head>
-        <title>📡 توصيات EUR/USD</title>
-      </Head>
-      <div style={{ maxWidth: '500px', margin: 'auto', background: '#222', borderRadius: '10px', padding: '20px' }}>
-        <h1 style={{ textAlign: 'center', color: '#0f0' }}>📡 توصيات EUR/USD</h1>
+    <p class="label">📉 التوصية:</p>
+    <p class="value" id="signal">--</p>
 
-        <p><b>📉 التوصية:</b> <span id="signal">--</span></p>
-        <p><b>💱 السعر:</b> <span id="price">--</span></p>
-        <p><b>🎯 الهدف:</b> <span id="tp">--</span></p>
-        <p><b>🛑 وقف الخسارة:</b> <span id="sl">--</span></p>
-        <p><b>📊 الثقة:</b> <span id="confidence">--</span></p>
-        <p><b>⏱ مدة الصفقة:</b> <span id="duration">--</span></p>
+    <p class="label">💱 السعر:</p>
+    <p class="value" id="price">--</p>
 
-        <button onClick={() => fetchSignal()} style={{ width: '100%', marginTop: '20px', padding: '10px', fontWeight: 'bold', background: '#0f0', color: '#000', borderRadius: '6px' }}>🔄 تحديث يدوي</button>
+    <p class="label">🎯 الهدف:</p>
+    <p class="value" id="tp">--</p>
 
-        <p style={{ textAlign: 'center', color: '#888', fontSize: '14px', marginTop: '15px' }} id="timeUpdated">آخر تحديث: --</p>
-      </div>
+    <p class="label">🛑 وقف الخسارة:</p>
+    <p class="value" id="sl">--</p>
 
-      <script dangerouslySetInnerHTML={{ __html: `
-        async function fetchSignal() {
-          try {
-            const res = await fetch("https://gi-jade.vercel.app/latest_signal.json");
-            const data = await res.json();
-            document.getElementById("signal").innerText = data.signal || "--";
-            document.getElementById("price").innerText = data.price || "--";
-            document.getElementById("tp").innerText = data.tp || "--";
-            document.getElementById("sl").innerText = data.sl || "--";
-            document.getElementById("confidence").innerText = (data.confidence || "--") + "%";
-            document.getElementById("duration").innerText = (data.duration || "--") + " ثانية";
-            document.getElementById("timeUpdated").innerText = "آخر تحديث: " + new Date().toLocaleTimeString();
-          } catch (e) {
-            alert("فشل في تحميل البيانات الحية");
-          }
-        }
-        fetchSignal();
-        setInterval(fetchSignal, 60000);
-      ` }} />
-    </div>
-  );
-}
+    <p class="label">📊 نسبة الثقة:</p>
+    <p class="value" id="confidence">--</p>
+
+    <p class="label">⏱️ مدة الصفقة:</p>
+    <p class="value" id="duration">--</p>
+
+    <button onclick="fetchSignal()">🔄 تحديث يدوي</button>
+    <p class="updated" id="updatedTime">آخر تحديث: --</p>
+  </div>
+
+  <script>
+    async function fetchSignal() {
+      try {
+        const res = await fetch("/latest_signal.json");
+        const data = await res.json();
+
+        document.getElementById("signal").textContent = data.signal || "--";
+        document.getElementById("price").textContent = data.price || "--";
+        document.getElementById("tp").textContent = data.tp || "--";
+        document.getElementById("sl").textContent = data.sl || "--";
+        document.getElementById("confidence").textContent = (data.confidence || "--") + "%";
+        document.getElementById("duration").textContent = (data.duration || "--") + " ثانية";
+        document.getElementById("updatedTime").textContent = "آخر تحديث: " + new Date().toLocaleTimeString();
+      } catch (e) {
+        alert("❌ فشل تحميل التوصية");
+      }
+    }
+
+    // تحميل تلقائي عند الفتح
+    fetchSignal();
+  </script>
+</body>
+</html>
