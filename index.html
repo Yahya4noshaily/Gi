@@ -1,39 +1,45 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-  <meta charset="UTF-8" />
-  <title>توصيات MT5 لايف</title>
-</head>
-<body>
-  <h1>🚀 توصية مباشرة</h1>
-  <p>📈 الاتجاه: <span id="recommendation">--</span></p>
-  <p>💵 السعر: <span id="price">--</span></p>
-  <p>🎯 الهدف: <span id="tp">--</span></p>
-  <p>🛑 الوقف: <span id="sl">--</span></p>
-  <p>⏱ المدة: <span id="duration">--</span></p>
-  <p>📊 الثقة: <span id="confidence">--</span></p>
+import Head from 'next/head';
 
-  <ul id="historyList"></ul>
+export default function Home() {
+  return (
+    <div dir="rtl" style={{ background: '#111', color: '#eee', padding: '20px', fontFamily: 'Segoe UI, sans-serif' }}>
+      <Head>
+        <title>📡 توصيات EUR/USD</title>
+      </Head>
+      <div style={{ maxWidth: '500px', margin: 'auto', background: '#222', borderRadius: '10px', padding: '20px' }}>
+        <h1 style={{ textAlign: 'center', color: '#0f0' }}>📡 توصيات EUR/USD</h1>
 
-  <script>
-    async function fetchRealSignal() {
-      const res = await fetch("/latest_signal.json");
-      const signal = await res.json();
-      document.getElementById("recommendation").textContent = signal.signal || "--";
-      document.getElementById("price").textContent = signal.price || "--";
-      document.getElementById("tp").textContent = signal.tp || "--";
-      document.getElementById("sl").textContent = signal.sl || "--";
-      document.getElementById("duration").textContent = signal.duration || "--";
-      document.getElementById("confidence").textContent = signal.confidence || "--";
+        <p><b>📉 التوصية:</b> <span id="signal">--</span></p>
+        <p><b>💱 السعر:</b> <span id="price">--</span></p>
+        <p><b>🎯 الهدف:</b> <span id="tp">--</span></p>
+        <p><b>🛑 وقف الخسارة:</b> <span id="sl">--</span></p>
+        <p><b>📊 الثقة:</b> <span id="confidence">--</span></p>
+        <p><b>⏱ مدة الصفقة:</b> <span id="duration">--</span></p>
 
-      const log = `${signal.signal} @ ${signal.price} 🎯 ${signal.tp} / 🛑 ${signal.sl} / ⏱ ${signal.duration} / 📊 ${signal.confidence}`;
-      const li = document.createElement("li");
-      li.textContent = log;
-      document.getElementById("historyList").prepend(li);
-    }
+        <button onClick={() => fetchSignal()} style={{ width: '100%', marginTop: '20px', padding: '10px', fontWeight: 'bold', background: '#0f0', color: '#000', borderRadius: '6px' }}>🔄 تحديث يدوي</button>
 
-    setInterval(fetchRealSignal, 5000);
-    fetchRealSignal();
-  </script>
-</body>
-</html>
+        <p style={{ textAlign: 'center', color: '#888', fontSize: '14px', marginTop: '15px' }} id="timeUpdated">آخر تحديث: --</p>
+      </div>
+
+      <script dangerouslySetInnerHTML={{ __html: `
+        async function fetchSignal() {
+          try {
+            const res = await fetch("https://gi-jade.vercel.app/latest_signal.json");
+            const data = await res.json();
+            document.getElementById("signal").innerText = data.signal || "--";
+            document.getElementById("price").innerText = data.price || "--";
+            document.getElementById("tp").innerText = data.tp || "--";
+            document.getElementById("sl").innerText = data.sl || "--";
+            document.getElementById("confidence").innerText = (data.confidence || "--") + "%";
+            document.getElementById("duration").innerText = (data.duration || "--") + " ثانية";
+            document.getElementById("timeUpdated").innerText = "آخر تحديث: " + new Date().toLocaleTimeString();
+          } catch (e) {
+            alert("فشل في تحميل البيانات الحية");
+          }
+        }
+        fetchSignal();
+        setInterval(fetchSignal, 60000);
+      ` }} />
+    </div>
+  );
+}
