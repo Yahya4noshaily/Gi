@@ -2,61 +2,37 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Smart Signal Dashboard</title>
+  <title>📈 Smart Signal Dashboard</title>
   <style>
-    body {
-      background-color: black;
-      color: white;
-      font-family: sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 40px;
-    }
-    h1 {
-      color: #00ffcc;
-    }
-    .signal-box {
-      margin-top: 20px;
-      background: #222;
-      padding: 20px;
-      border-radius: 8px;
-      width: 300px;
-    }
-    .signal-box div {
-      margin: 8px 0;
-    }
+    body { background: black; color: cyan; font-family: sans-serif; text-align: center; padding: 30px; }
+    .card { background: #222; padding: 20px; border-radius: 10px; display: inline-block; }
+    h1 { font-size: 32px; }
   </style>
 </head>
 <body>
   <h1>📈 Smart Signal Dashboard</h1>
-  <div class="signal-box" id="signalBox">
-    <div><strong>Signal:</strong> <span id="signal">--</span></div>
-    <div><strong>Price:</strong> <span id="price">--</span></div>
-    <div><strong>TP:</strong> <span id="tp">--</span></div>
-    <div><strong>SL:</strong> <span id="sl">--</span></div>
-    <div><strong>Confidence:</strong> <span id="confidence">--</span></div>
-    <div><strong>Duration:</strong> <span id="duration">--</span></div>
+  <div class="card">
+    <p>Signal: <span id="signal">--</span></p>
+    <p>Price: <span id="price">--</span></p>
+    <p>TP: <span id="tp">--</span></p>
+    <p>SL: <span id="sl">--</span></p>
+    <p>Confidence: <span id="confidence">--</span></p>
+    <p>Duration: <span id="duration">--</span></p>
   </div>
 
   <script>
-    async function getSignal() {
-      try {
-        const res = await fetch('/api/latest_signal.json');
-        const data = await res.json();
-        document.getElementById('signal').textContent = data.signal;
-        document.getElementById('price').textContent = data.price;
-        document.getElementById('tp').textContent = data.tp;
-        document.getElementById('sl').textContent = data.sl;
-        document.getElementById('confidence').textContent = data.confidence;
-        document.getElementById('duration').textContent = data.duration;
-      } catch (err) {
-        console.error('Failed to load signal:', err);
-      }
+    async function fetchSignal() {
+      const res = await fetch("https://ei-smart-signal-default-rtdb.firebaseio.com/latest_signal.json");
+      const data = await res.json();
+      document.getElementById("signal").innerText = data.signal;
+      document.getElementById("price").innerText = data.price;
+      document.getElementById("tp").innerText = data.tp;
+      document.getElementById("sl").innerText = data.sl;
+      document.getElementById("confidence").innerText = data.confidence;
+      document.getElementById("duration").innerText = data.duration;
     }
-
-    getSignal();
+    fetchSignal();
+    setInterval(fetchSignal, 10000);
   </script>
 </body>
 </html>
