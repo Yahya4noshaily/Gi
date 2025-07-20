@@ -2,138 +2,99 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8" />
-  <title>لوحة التوصيات - eo broker smart</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📡 توصيات eo broker</title>
   <style>
     body {
       background: #111;
       color: #eee;
       font-family: 'Segoe UI', sans-serif;
-      padding: 20px;
       direction: rtl;
+      padding: 20px;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background-color: #222;
+      border-radius: 10px;
+      padding: 20px;
     }
     h1 {
       color: #0f0;
       text-align: center;
-      margin-bottom: 20px;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-    }
-    th, td {
-      padding: 10px;
-      text-align: center;
-      border-bottom: 1px solid #333;
-    }
-    th {
-      background-color: #222;
-      color: #0ff;
-    }
-    tr.buy { background-color: rgba(0,255,0,0.1); }
-    tr.sell { background-color: rgba(255,0,0,0.1); }
-    .timestamp {
-      font-size: 0.85em;
+    .label {
       color: #aaa;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .value {
+      font-size: 1.3em;
+      margin-bottom: 10px;
     }
     button {
-      padding: 10px 20px;
-      background-color: #0ff;
+      background: #0f0;
       color: #000;
       border: none;
+      padding: 10px;
+      width: 100%;
+      margin-top: 20px;
       border-radius: 5px;
-      cursor: pointer;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <h1>📡 توصيات مباشر - EUR/USD</h1>
-  <table id="signalTable">
-    <thead>
-      <tr>
-        <th>🕒 الوقت</th>
-        <th>📈 التوصية</th>
-        <th>💲 السعر</th>
-        <th>🎯 TP</th>
-        <th>🛑 SL</th>
-        <th>⏱️ المدة</th>
-        <th>📊 الثقة</th>
-      </tr>
-    </thead>
-    <tbody id="tableBody"></tbody>
-  </table>
+  <div class="container">
+    <h1>🔄 توصيات حية</h1>
 
-  <div style="text-align:center;">
-    <button onclick="downloadCSV()">📥 تحميل CSV</button>
+    <div class="label">📈 التوصية:</div>
+    <div class="value" id="signal">--</div>
+
+    <div class="label">💱 السعر:</div>
+    <div class="value" id="price">--</div>
+
+    <div class="label">🎯 الهدف:</div>
+    <div class="value" id="tp">--</div>
+
+    <div class="label">🛑 وقف الخسارة:</div>
+    <div class="value" id="sl">--</div>
+
+    <div class="label">⏱️ مدة الصفقة:</div>
+    <div class="value" id="duration">--</div>
+
+    <div class="label">📊 الثقة:</div>
+    <div class="value" id="confidence">--</div>
+
+    <button onclick="loadSignal()">🔁 تحديث يدوي</button>
   </div>
 
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
   <script>
-    let historyData = [];
+    const db = firebase.firestore();
 
-    async function fetchSignal() {
+    async function loadSignal() {
       try {
-        const res = await fetch('https://gi-jade.vercel.app/latest_signal.json'); // تأكد من صحة الرابط
-        const signal = await res.json();
+        const doc = await db.collection("signals").doc("latest").get();
+        const data = doc.data();
 
-        const time = new Date().toLocaleTimeString('ar-EG');
-        const row = {
-          time,
-          signal: signal.signal || "--",
-          price: signal.price || "--",
-          tp: signal.tp || "--",
-          sl: signal.sl || "--",
-          duration: signal.duration + " ثانية" || "--",
-          confidence: signal.confidence + "%" || "--"
-        };
+        document.getElementById("signal").innerText = data.signal || "--";
+        document.getElementById("price").innerText = data.price || "--";
+        document.getElementById("tp").innerText = data.tp || "--";
+        document.getElementById("sl").innerText = data.sl || "--";
+        document.getElementById("duration").innerText = data.duration || "--";
+        document.getElementById("confidence").innerText = data.confidence + "%" || "--";
 
-        historyData.unshift(row);
-        if (historyData.length > 10) historyData.pop();
-        renderTable();
-
-      } catch (err) {
-        console.error("فشل في تحميل البيانات:", err);
+      } catch (e) {
+        alert("❌ تعذر جلب البيانات من Firebase");
       }
     }
 
-    function renderTable() {
-      const tbody = document.getElementById("tableBody");
-      tbody.innerHTML = "";
-
-      historyData.forEach(row => {
-        const tr = document.createElement("tr");
-        tr.className = row.signal.includes("شراء") ? "buy" : row.signal.includes("بيع") ? "sell" : "";
-
-        tr.innerHTML = `
-          <td>${row.time}</td>
-          <td>${row.signal}</td>
-          <td>${row.price}</td>
-          <td>${row.tp}</td>
-          <td>${row.sl}</td>
-          <td>${row.duration}</td>
-          <td>${row.confidence}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function downloadCSV() {
-      let csv = "الوقت,التوصية,السعر,TP,SL,المدة,الثقة\n";
-      historyData.forEach(r => {
-        csv += `${r.time},${r.signal},${r.price},${r.tp},${r.sl},${r.duration},${r.confidence}\n`;
-      });
-
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", "signal_log.csv");
-      link.click();
-    }
-
-    // تحديث كل دقيقة
-    fetchSignal();
-    setInterval(fetchSignal, 60000);
+    loadSignal();
   </script>
 </body>
 </html>
