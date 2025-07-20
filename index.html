@@ -2,96 +2,66 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>📡 توصيات eo broker</title>
+  <title>لوحة التوصيات - EO Broker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       background: #111;
       color: #eee;
       font-family: 'Segoe UI', sans-serif;
+      padding: 20px;
       direction: rtl;
-      padding: 20px;
-    }
-    .container {
-      max-width: 500px;
-      margin: auto;
-      background-color: #222;
-      border-radius: 10px;
-      padding: 20px;
     }
     h1 {
       color: #0f0;
       text-align: center;
+      margin-bottom: 20px;
     }
-    .label {
-      color: #aaa;
-      font-weight: bold;
-      margin-top: 10px;
-    }
-    .value {
-      font-size: 1.3em;
-      margin-bottom: 10px;
-    }
-    button {
-      background: #0f0;
-      color: #000;
-      border: none;
-      padding: 10px;
+    table {
       width: 100%;
-      margin-top: 20px;
-      border-radius: 5px;
-      font-weight: bold;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+      border-bottom: 1px solid #333;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🔄 توصيات حية</h1>
+  <h1>توصيات التداول</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>الإشارة</th>
+        <th>السعر</th>
+        <th>TP</th>
+        <th>SL</th>
+        <th>الثقة</th>
+        <th>المدة</th>
+      </tr>
+    </thead>
+    <tbody id="signal-table">
+      <tr><td colspan="6">جاري التحميل...</td></tr>
+    </tbody>
+  </table>
 
-    <div class="label">📈 التوصية:</div>
-    <div class="value" id="signal">--</div>
-
-    <div class="label">💱 السعر:</div>
-    <div class="value" id="price">--</div>
-
-    <div class="label">🎯 الهدف:</div>
-    <div class="value" id="tp">--</div>
-
-    <div class="label">🛑 وقف الخسارة:</div>
-    <div class="value" id="sl">--</div>
-
-    <div class="label">⏱️ مدة الصفقة:</div>
-    <div class="value" id="duration">--</div>
-
-    <div class="label">📊 الثقة:</div>
-    <div class="value" id="confidence">--</div>
-
-    <button onclick="loadSignal()">🔁 تحديث يدوي</button>
-  </div>
-
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-  <script src="firebase-config.js"></script>
-
-  <script>
-    const db = firebase.firestore();
-
+  <script type="module">
     async function loadSignal() {
-      try {
-        const doc = await db.collection("signals").doc("latest").get();
-        const data = doc.data();
+      const res = await fetch('/public/latest_signal.json');
+      const data = await res.json();
 
-        document.getElementById("signal").innerText = data.signal || "--";
-        document.getElementById("price").innerText = data.price || "--";
-        document.getElementById("tp").innerText = data.tp || "--";
-        document.getElementById("sl").innerText = data.sl || "--";
-        document.getElementById("duration").innerText = data.duration || "--";
-        document.getElementById("confidence").innerText = data.confidence + "%" || "--";
-
-      } catch (e) {
-        alert("❌ تعذر جلب البيانات من Firebase");
-      }
+      const html = `
+        <tr>
+          <td>${data.signal}</td>
+          <td>${data.price}</td>
+          <td>${data.tp}</td>
+          <td>${data.sl}</td>
+          <td>${data.confidence}</td>
+          <td>${data.duration}</td>
+        </tr>`;
+      document.getElementById('signal-table').innerHTML = html;
     }
 
     loadSignal();
