@@ -1,70 +1,83 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html>
 <head>
   <meta charset="UTF-8" />
-  <title>لوحة التوصيات - EO Broker</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📈 Smart Signal Dashboard</title>
   <style>
     body {
-      background: #111;
-      color: #eee;
-      font-family: 'Segoe UI', sans-serif;
-      padding: 20px;
-      direction: rtl;
+      background-color: #000;
+      color: #0ff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 40px;
+    }
+    .box {
+      background: #222;
+      padding: 20px 30px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 0 10px #0ff;
     }
     h1 {
-      color: #0f0;
-      text-align: center;
+      color: #0ff;
       margin-bottom: 20px;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
+    .label {
+      font-weight: bold;
+      color: #fff;
     }
-    th, td {
-      padding: 10px;
-      text-align: center;
-      border-bottom: 1px solid #333;
+    .value {
+      color: #0ff;
     }
   </style>
 </head>
 <body>
-  <h1>توصيات التداول</h1>
-  <table>
-    <thead>
-      <tr>
-        <th>الإشارة</th>
-        <th>السعر</th>
-        <th>TP</th>
-        <th>SL</th>
-        <th>الثقة</th>
-        <th>المدة</th>
-      </tr>
-    </thead>
-    <tbody id="signal-table">
-      <tr><td colspan="6">جاري التحميل...</td></tr>
-    </tbody>
-  </table>
+  <h1>📈 Smart Signal Dashboard</h1>
+  <div class="box">
+    <div><span class="label">Signal:</span> <span class="value" id="signal">--</span></div>
+    <div><span class="label">Price:</span> <span class="value" id="price">--</span></div>
+    <div><span class="label">TP:</span> <span class="value" id="tp">--</span></div>
+    <div><span class="label">SL:</span> <span class="value" id="sl">--</span></div>
+    <div><span class="label">Confidence:</span> <span class="value" id="confidence">--</span></div>
+    <div><span class="label">Duration:</span> <span class="value" id="duration">--</span></div>
+    <div><span class="label">Analysis:</span> <span class="value" id="analysis">--</span></div>
+  </div>
 
+  <!-- Firebase SDK -->
   <script type="module">
-    async function loadSignal() {
-      const res = await fetch('/public/latest_signal.json');
-      const data = await res.json();
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
 
-      const html = `
-        <tr>
-          <td>${data.signal}</td>
-          <td>${data.price}</td>
-          <td>${data.tp}</td>
-          <td>${data.sl}</td>
-          <td>${data.confidence}</td>
-          <td>${data.duration}</td>
-        </tr>`;
-      document.getElementById('signal-table').innerHTML = html;
-    }
+    const firebaseConfig = {
+      apiKey: "AIzaSyAJWe8KEyDBBSZ8BIwJIlK2rB16Wx-RjHo",
+      authDomain: "ei-smart-signal.firebaseapp.com",
+      databaseURL: "https://ei-smart-signal-default-rtdb.firebaseio.com",
+      projectId: "ei-smart-signal",
+      storageBucket: "ei-smart-signal.appspot.com",
+      messagingSenderId: "297243377781",
+      appId: "1:297243377781:web:b75c9f125894e1684db83c"
+    };
 
-    loadSignal();
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    const signalRef = ref(database, 'signals/eurusd');
+
+    onValue(signalRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        document.getElementById('signal').textContent = data.signal ?? '--';
+        document.getElementById('price').textContent = data.price ?? '--';
+        document.getElementById('tp').textContent = data.tp ?? '--';
+        document.getElementById('sl').textContent = data.sl ?? '--';
+        document.getElementById('confidence').textContent = data.confidence ?? '--';
+        document.getElementById('duration').textContent = data.duration ?? '--';
+        document.getElementById('analysis').textContent = data.analysis ?? '--';
+      }
+    });
   </script>
 </body>
 </html>
