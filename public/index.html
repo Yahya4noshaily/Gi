@@ -1,65 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>📈 Smart Signal Dashboard</title>
-  <style>
-    body {
-      background-color: #000;
-      color: #0ff;
-      font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding-top: 50px;
-    }
-    h1 {
-      font-size: 28px;
-      margin-bottom: 20px;
-    }
-    .card {
-      background-color: #222;
-      padding: 25px;
-      border-radius: 10px;
-      width: 300px;
-      box-shadow: 0 0 10px #0ff;
-    }
-    .card p {
-      margin: 10px 0;
-      font-size: 18px;
-    }
-  </style>
+  <title>eo broker smart signal</title>
+
+  <!-- ✅ رابط ملف CSS -->
+  <link rel="stylesheet" href="style.css">
+
 </head>
 <body>
-  <h1>📈 Smart Signal Dashboard</h1>
-  <div class="card">
-    <p><strong>Signal:</strong> <span id="signal">--</span></p>
-    <p><strong>Price:</strong> <span id="price">--</span></p>
-    <p><strong>TP:</strong> <span id="tp">--</span></p>
-    <p><strong>SL:</strong> <span id="sl">--</span></p>
-    <p><strong>Confidence:</strong> <span id="confidence">--</span></p>
-    <p><strong>Duration:</strong> <span id="duration">--</span></p>
+  <div class="container">
+    <h1>📡 eo broker smart signal</h1>
+
+    <div class="signal-box" id="signalBox">
+      <div class="label">📈 التوصية:</div>
+      <div class="value" id="recommendation">جاري التحليل...</div>
+
+      <div class="label">💱 السعر:</div>
+      <div class="value" id="price">-</div>
+
+      <div class="label">🎯 الهدف:</div>
+      <div class="value" id="tp">-</div>
+
+      <div class="label">🛑 وقف الخسارة:</div>
+      <div class="value" id="sl">-</div>
+
+      <div class="label">⏱ مدة الصفقة:</div>
+      <div class="value" id="duration">-</div>
+
+      <div class="label">📊 نسبة الثقة:</div>
+      <div class="value" id="confidence">-</div>
+    </div>
+
+    <button onclick="generateSignal()">🔁 تحديث التوصية</button>
+
+    <div class="history">
+      <div class="label">📋 سجل التوصيات:</div>
+      <ul id="historyList"></ul>
+    </div>
+
+    <button onclick="promptAdmin()">🔓 دخول المشرف</button>
+
+    <div id="admin-form">
+      <input type="text" id="manualType" placeholder="شراء / بيع">
+      <input type="text" id="manualPrice" placeholder="السعر">
+      <input type="text" id="manualTP" placeholder="Take Profit">
+      <input type="text" id="manualSL" placeholder="Stop Loss">
+      <input type="text" id="manualDuration" placeholder="مدة الصفقة">
+      <input type="text" id="manualConfidence" placeholder="نسبة الثقة">
+      <button onclick="submitManual()">✅ نشر التوصية اليدوية</button>
+    </div>
   </div>
 
-  <script>
-    async function fetchData() {
-      try {
-        const response = await fetch('./latest_signal.json');
-        const data = await response.json();
-        document.getElementById('signal').textContent = data.signal || '--';
-        document.getElementById('price').textContent = data.price || '--';
-        document.getElementById('tp').textContent = data.tp || '--';
-        document.getElementById('sl').textContent = data.sl || '--';
-        document.getElementById('confidence').textContent = data.confidence || '--';
-        document.getElementById('duration').textContent = data.duration || '--';
-      } catch (err) {
-        console.error('Failed to load signal:', err);
-      }
-    }
-
-    fetchData();
-    setInterval(fetchData, 10000); // كل 10 ثواني تحديث
-  </script>
+  <!-- ✅ ملف JavaScript -->
+  <script src="main.js"></script>
 </body>
 </html>
