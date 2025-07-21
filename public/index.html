@@ -3,30 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Smart Signal Dashboard</title>
-  <style>
-    body {
-      background: #000;
-      color: #0ff;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 50px;
-    }
-    .box {
-      background: #222;
-      color: #fff;
-      padding: 20px;
-      margin-top: 20px;
-      border-radius: 10px;
-      display: inline-block;
-      text-align: left;
-    }
-  </style>
+  <title>📈 Smart Signal Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
   <h1>📈 Smart Signal Dashboard</h1>
-  <div class="box">
+
+  <div class="signal-box">
     <p><strong>Signal:</strong> <span id="signal">--</span></p>
     <p><strong>Price:</strong> <span id="price">--</span></p>
     <p><strong>TP:</strong> <span id="tp">--</span></p>
@@ -35,33 +18,6 @@
     <p><strong>Duration:</strong> <span id="duration">--</span></p>
   </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
-
-  <script>
-    // Firebase config
-    const firebaseConfig = {
-      databaseURL: "https://ei-smart-signal-default-rtdb.firebaseio.com/",
-    };
-
-    // Init Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    // Get latest signal
-    firebase.database().ref('latest_signal').on('value', (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        document.getElementById('signal').innerText = data.signal || '--';
-        document.getElementById('price').innerText = data.price || '--';
-        document.getElementById('tp').innerText = data.tp || '--';
-        document.getElementById('sl').innerText = data.sl || '--';
-        document.getElementById('confidence').innerText = data.confidence || '--';
-        document.getElementById('duration').innerText = data.duration || '--';
-      }
-    });
-  </script>
-
+  <script src="main.js"></script>
 </body>
 </html>
