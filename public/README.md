@@ -42,7 +42,7 @@
 
 ## 🚀 رابط الموقع المباشر:
 
-🔗 [https://smart-signal.vercel.app](https://smart-signal.vercel.app) *(مثال)*
+🔗 [[https://smart-signal.vercel.app](https://gi-lk2v.vercel.app)](https://smart-signal.vercel.app) *(مثال)*
 
 ---
 
