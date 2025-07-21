@@ -1,8 +1,8 @@
 {
-  "signal": "--",
-  "price": "--",
-  "tp": "--",
-  "sl": "--",
-  "confidence": "--",
-  "duration": "--"
+  "signal": "BUY",
+  "price": "1.0865",
+  "tp": "1.0900",
+  "sl": "1.0830",
+  "confidence": "91%",
+  "duration": "1 min"
 }
